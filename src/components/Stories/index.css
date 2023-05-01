@@ -1,0 +1,13 @@
+.slick-prev:before,
+.slick-next:before {
+  color: #989898;
+  background-color: #ffffff;
+  transform: matrix(-1, 0, 0, 1, 0, 0);
+  border-radius: 50%;
+}
+
+.slick-container {
+  padding-left: 50px;
+  padding-right: 50px;
+  margin-top: 18px;
+}

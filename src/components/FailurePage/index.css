@@ -1,0 +1,54 @@
+.failure-view-container {
+  background-color: #fafafa;
+  height: 90vh;
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.failure-view-container img {
+  width: 80%;
+}
+
+@media (min-width: 768px) {
+  .failure-view-container img {
+    width: 40%;
+  }
+}
+
+.failure-view-container p {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #262626;
+  padding: 0;
+  margin: 0;
+  margin-top: 24px;
+}
+
+@media (min-width: 768px) {
+  .failure-view-container p {
+    font-size: 32px;
+    line-height: 48px;
+  }
+}
+
+.failure-view-container button {
+  padding: 8px 24px;
+  background: #4094ef;
+  border-radius: 8px;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  margin-top: 24px;
+}
+
+@media (min-width: 768px) {
+  .failure-view-container button {
+    padding: 12px 32px;
+  }
+}

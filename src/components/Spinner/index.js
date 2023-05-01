@@ -1,9 +1,11 @@
 import Loader from 'react-loader-spinner'
 
+import './index.css'
+
 const Spinner = () => (
   <>
-    <div className="loader-container" data-testid="loader">
-      <Loader type="TailSpin" color="#4094EF" height={100} width={100} />
+    <div className="loader-container spinner-container">
+      <Loader type="TailSpin" color="#4094EF" width={40} height={40} />
     </div>
   </>
 )

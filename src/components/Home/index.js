@@ -1,50 +1,28 @@
-import {useState, useEffect} from 'react'
-
-import Cookies from 'js-cookie'
+import {Component} from 'react'
 
 import Navbar from '../Navbar'
+import PostsList from '../PostsList'
+import Stories from '../Stories'
 
-const apiStatusConstants = {
-  initial: 'INITIAL',
-  inProgress: 'IN_PROGRESS',
-  success: 'SUCCESS',
-  failure: 'FAILURE',
-}
+import './index.css'
 
-const Home = () => {
-  const [apiStoriesResponse, setApiStoriesResponse] = useState({
-    status: apiStatusConstants.initial,
-    storiesList: [],
-  })
-
-  useEffect(() => {
-    const fetchStories = async () => {
-      const jwtToken = Cookies.get('jwt_token')
-      const storiesUrl = 'https://apis.ccpb.in/insta-share/posts'
-      const options = {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${jwtToken}`,
-        },
-      }
-      const response = await fetch(storiesUrl, options)
-      const data = await response.json()
-      console.log(response)
-      console.log(data)
-    }
-    fetchStories()
-  })
-
-  const renderStories = () => <h1>slider</h1>
-
-  return (
-    <>
-      <Navbar />
-      <div className="home-bg-container">
-        <div className="stories-container">{renderStories()}</div>
-      </div>
-    </>
-  )
+class Home extends Component {
+  render() {
+    return (
+      <>
+        <Navbar />
+        <div className="home-bg-container">
+          <div className="stories-container">
+            <Stories />
+          </div>
+          <hr className="sm-hr-line" />
+          <div className="posts-container">
+            <PostsList />
+          </div>
+        </div>
+      </>
+    )
+  }
 }
 
 export default Home
