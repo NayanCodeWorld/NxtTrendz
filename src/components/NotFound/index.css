@@ -1,78 +1,44 @@
 .not-found-container {
-  height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  height: 100vh;
 }
-
-.not-found-container img {
-  width: 157px;
-  height: 173px;
+.not-found {
+  width: 269px;
+  height: 297px;
 }
-
-@media (min-width: 768px) {
-  .not-found-container img {
-    width: 269px;
-    height: 297px;
-  }
-}
-
-.not-found-container h1 {
+.not-found-head {
   font-family: 'Roboto';
   font-style: normal;
   font-weight: 500;
-  font-size: 20px;
-  line-height: 32px;
+  font-size: 32px;
+  line-height: 48px;
   text-align: center;
   color: #262626;
 }
-
-@media (min-width: 768px) {
-  .not-found-container h1 {
-    font-size: 32px;
-  }
-}
-
-.not-found-container p {
-  font-family: 'Roboto';
+.not-fond-para {
+  font-family: Roboto;
   font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
+  font-weight: normal;
+  font-size: 20px;
+  line-height: 32px;
+  /* or 160% */
+
   text-align: center;
+
   color: #989898;
-  width: 70%;
-  margin: 0;
-  padding: 0;
 }
-
-@media (min-width: 768px) {
-  .not-found-container p {
-    font-size: 20px;
-    line-height: 32px;
-    width: 30%;
-  }
-}
-
-.not-found-container button {
-  padding: 8px 24px;
+.button {
   background: #4094ef;
-  border-radius: 8px;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 500;
-  font-size: 12px;
+  border-radius: 12px;
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  margin: 0px 0px;
+  border-width: 0px;
+  padding: 12px 32px;
   color: #ffffff;
-  margin-top: 24px;
-}
-
-@media (min-width: 768px) {
-  .not-found-container button {
-    padding: 12px 32px;
-    font-size: 14px;
-  }
 }

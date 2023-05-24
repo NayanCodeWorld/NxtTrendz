@@ -11,7 +11,7 @@ const apiMyProfileStatus = {
   failure: 'FAILURE',
 }
 
-class UserProfile extends Component {
+class Profile extends Component {
   state = {apiProfileStatus: apiMyProfileStatus.initial, profileData: []}
 
   componentDidMount() {
@@ -19,15 +19,11 @@ class UserProfile extends Component {
   }
 
   getMyProfileDetail = async () => {
-    const {match} = this.props
-    const {params} = match
-    const {userId} = params
-
     const token = Cookies.get('jwt_token')
 
     this.setState({apiProfileStatus: apiMyProfileStatus.inProgress})
 
-    const apiUrl = `https://apis.ccbp.in/insta-share/users/${userId}`
+    const apiUrl = 'https://apis.ccbp.in/insta-share/my-profile'
     const options = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -39,25 +35,24 @@ class UserProfile extends Component {
       const data = await response.json()
       const updatedData = {
         profile: {
-          id: data.user_details.id,
-          userId: data.user_details.user_id,
-          userName: data.user_details.user_name,
-          profilePic: data.user_details.profile_pic,
-          followersCount: data.user_details.followers_count,
-          followingCount: data.user_details.following_count,
-          userBio: data.user_details.user_bio,
-          postsCount: data.user_details.posts_count,
-          posts: data.user_details.posts.map(each => ({
+          id: data.profile.id,
+          userId: data.profile.user_id,
+          userName: data.profile.user_name,
+          profilePic: data.profile.profile_pic,
+          followersCount: data.profile.followers_count,
+          followingCount: data.profile.following_count,
+          userBio: data.profile.user_bio,
+          postsCount: data.profile.posts_count,
+          posts: data.profile.posts.map(each => ({
             id: each.id,
             image: each.image,
           })),
-          stories: data.user_details.stories.map(each => ({
+          stories: data.profile.stories.map(each => ({
             id: each.id,
             image: each.image,
           })),
         },
       }
-
       this.setState({
         profileData: updatedData,
         apiProfileStatus: apiMyProfileStatus.success,
@@ -72,7 +67,7 @@ class UserProfile extends Component {
 
     return (
       <ul className="my-profile-container">
-        <ProfileCard data={profileData} my="user" />
+        <ProfileCard data={profileData} my="my" />
       </ul>
     )
   }
@@ -129,4 +124,4 @@ class UserProfile extends Component {
   }
 }
 
-export default UserProfile
+export default Profile

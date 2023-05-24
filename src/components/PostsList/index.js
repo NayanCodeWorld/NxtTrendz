@@ -1,135 +1,189 @@
 import {Component} from 'react'
+import Loader from 'react-loader-spinner'
 import Cookies from 'js-cookie'
 
-import {Link} from 'react-router-dom'
-
-import {IoIosWarning} from 'react-icons/io'
-
-import Spinner from '../Spinner'
-
-import PostItem from '../PostItem'
-
+import PostsItem from '../PostsItem'
+import SearchContext from '../../Context/SearchContext'
 import './index.css'
 
-const apiStatusConstants = {
+const apiPostsStatus = {
   initial: 'INITIAL',
-  progress: 'PROGRESS',
+  inProgress: 'IN_PROGRESS',
   success: 'SUCCESS',
   failure: 'FAILURE',
 }
 
-const jwtToken = Cookies.get('jwt_token')
-
 class PostsList extends Component {
   state = {
-    postList: [],
-    apiStatus: apiStatusConstants.initial,
+    apiPost: apiPostsStatus.initial,
+    postsData: [],
+    button: false,
   }
 
   componentDidMount() {
-    this.fetchPosts()
+    this.getPostList()
   }
 
-  fetchPosts = async () => {
-    const postUrl = 'https://apis.ccbp.in/insta-share/posts'
+  getPostList = async () => {
+    this.setState({apiPost: apiPostsStatus.inProgress})
+
+    const Token = Cookies.get('jwt_token')
+    const apiUrl = 'https://apis.ccbp.in/insta-share/posts'
     const options = {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${jwtToken}`,
+        Authorization: `Bearer ${Token}`,
       },
     }
-    const response = await fetch(postUrl, options)
-    const data = await response.json()
+    const response = await fetch(apiUrl, options)
+    if (response.ok) {
+      const data = await response.json()
+      const updatedData = data.posts.map(each => ({
+        postId: each.post_id,
+        userId: each.user_id,
+        likeStatus: false,
+        userName: each.user_name,
+        profilePic: each.profile_pic,
+        postDetails: {
+          imageUrl: each.post_details.image_url,
+          caption: each.post_details.caption,
+        },
+        likesCount: each.likes_count,
+        comments: each.comments.map(eachItem => ({
+          userName: eachItem.user_name,
+          userId: eachItem.user_id,
+          comment: eachItem.comment,
+        })),
+        createdAt: each.created_at,
+      }))
 
-    const newData = data.posts.map(each => ({...each, like_status: false}))
-
-    // console.log(data)
-    // console.log(newData)
-
-    if (response.ok === true) {
       this.setState({
-        postList: [...newData],
-        apiStatus: apiStatusConstants.success,
+        postsData: updatedData,
+        apiPost: apiPostsStatus.success,
       })
     } else {
-      this.setState({
-        apiStatus: apiStatusConstants.failure,
-      })
+      this.setState({apiPost: apiPostsStatus.failure})
     }
   }
 
-  onChangeLikeStatus = id => {
-    const {postList} = this.state
-    // console.log(id)
-    // console.log(postList)
-    const changeData = postList.map(each => {
-      if (each.post_id === id) {
-        // console.log(each)
-        if (each.like_status === false) {
+  onChangeLikeIcon = async postId => {
+    this.setState(prev => ({
+      button: !prev.button,
+    }))
+    const token = Cookies.get('jwt_token')
+
+    const apiUrl = `https://apis.ccbp.in/insta-share/posts/${postId}/like`
+    const post = {like_status: true}
+    const options = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(post),
+      method: 'POST',
+    }
+    await fetch(apiUrl, options)
+
+    this.setState(prev => ({
+      postsData: prev.postsData.map(each => {
+        if (each.postId === postId) {
           return {
             ...each,
-            like_status: !each.like_status,
-            likes_count: each.likes_count + 1,
+            likesCount: each.likesCount + 1,
+            likeStatus: !each.likeStatus,
           }
         }
-        return {
-          ...each,
-          like_status: !each.like_status,
-          likes_count: each.likes_count - 1,
+        return each
+      }),
+    }))
+  }
+
+  onChangeUnLikeIcon = async postId => {
+    this.setState(prev => ({button: !prev.button}))
+    const token = Cookies.get('jwt_token')
+    const apiUrl = `https://apis.ccbp.in/insta-share/posts/${postId}/like`
+    const post = {like_status: false}
+    const options = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(post),
+      method: 'POST',
+    }
+    await fetch(apiUrl, options)
+    this.setState(prev => ({
+      postsData: prev.postsData.map(each => {
+        if (each.postId === postId) {
+          return {
+            ...each,
+            likesCount: each.likesCount - 1,
+            likeStatus: !each.likeStatus,
+          }
         }
-      }
-      return each
-    })
-
-    this.setState({
-      postList: changeData,
-    })
+        return each
+      }),
+    }))
   }
 
-  renderSuccessView = () => {
-    const {postList} = this.state
-    return (
-      <ul className="postsList-container">
-        {postList.map(eachPost => (
-          <li className="post-container" key={eachPost.post_id}>
-            <PostItem
-              details={eachPost}
-              onChangeLikeStatus={this.onChangeLikeStatus}
-            />
-          </li>
-        ))}
-      </ul>
-    )
-  }
-
-  renderFailureView = () => (
-    <div className="failure-post-view">
-      <IoIosWarning className="warning-img" />
-      <p>Something went wrong. Please try again</p>
-      <Link to="/">
-        <button type="button">Try again</button>
-      </Link>
+  renderLoadingView = () => (
+    <div className="loader-container" testid="loader">
+      <Loader type="TailSpin" color="#4094EF" height={50} width={50} />
     </div>
   )
 
-  renderPost = () => {
-    const {apiStatus} = this.state
-    switch (apiStatus) {
-      case 'SUCCESS':
-        return this.renderSuccessView()
-      case 'FAILURE':
-        return this.renderFailureView()
+  onRetry = () => {
+    this.setState({apiPost: apiPostsStatus.inProgress}, this.getPostList)
+  }
+
+  renderPostsFailureView = () => (
+    <div className="failure-view">
+      <img
+        src="https://res.cloudinary.com/dq7imhrvo/image/upload/v1643651534/insta%20Shere%20clone/alert-triangle_hczx0o.png"
+        alt="failure view"
+        className="failure-img"
+      />
+      <p className="failure-head">Something went wrong. Please try again</p>
+      <button className="failure-button" type="button" onClick={this.onRetry}>
+        Try again
+      </button>
+    </div>
+  )
+
+  renderPostsSuccessView = () => {
+    const {postsData, button} = this.state
+
+    return (
+      <SearchContext.Provider
+        value={{
+          onChangeLikeIcon: this.onChangeLikeIcon,
+          onChangeUnLikeIcon: this.onChangeUnLikeIcon,
+        }}
+      >
+        <ul className="posts-container">
+          {postsData.map(each => (
+            <PostsItem key={each.postId} item={each} button={button} />
+          ))}
+        </ul>
+      </SearchContext.Provider>
+    )
+  }
+
+  renderPostsView = () => {
+    const {apiPost} = this.state
+
+    switch (apiPost) {
+      case apiPostsStatus.success:
+        return this.renderPostsSuccessView()
+      case apiPostsStatus.inProgress:
+        return this.renderLoadingView()
+      case apiPostsStatus.failure:
+        return this.renderPostsFailureView()
       default:
-        return (
-          <div className="process-container" data-testid="loader">
-            <Spinner />
-          </div>
-        )
+        return null
     }
   }
 
   render() {
-    return <>{this.renderPost()}</>
+    return this.renderPostsView()
   }
 }
 
